@@ -49,6 +49,24 @@ class CategoryViewController: UITableViewController {
         return cell
     }
     
+    //DELETE on swipe
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        
+        //Check the type of editStyle
+        if editingStyle == .delete {
+            do {
+                try realm.write {
+                    realm.delete(categoryArray[indexPath.row])
+                }
+            }catch {
+                print("Error deleting \(error)")
+            }
+        } else if editingStyle == .insert {
+            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
+        }
+        
+        tableView.reloadData()
+    }
     
     //MARK: - Add New Category
     

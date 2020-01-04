@@ -9,7 +9,7 @@
 import UIKit
 import RealmSwift
 
-class TodoListViewController: UITableViewController {
+class TodoListViewController: SwipeTableViewController {
     
     //Now we will initiate an array of instances of Item
     //Inside the load method we set the fetch equal to the itemArray
@@ -31,6 +31,8 @@ class TodoListViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //change the high of the cells for the icon to show correctly
+        tableView.rowHeight = 70.0
     }
     
     //MARK: - TableView Building tables
@@ -43,7 +45,9 @@ class TodoListViewController: UITableViewController {
     //Place data in the rows
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
+        //get the cell from the super class
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
+        
         
         if let item = todoItems?[indexPath.row] {
             
@@ -58,7 +62,6 @@ class TodoListViewController: UITableViewController {
         }else{
             cell.textLabel?.text =  "No Items added."
         }
-        
         return cell
     }
     
@@ -89,6 +92,7 @@ class TodoListViewController: UITableViewController {
         //on click cell will turn gray and go back to deselect which is white
         tableView.deselectRow(at: indexPath, animated: true)
     }
+    
     
     //MARK: - Add new items to array
     
@@ -154,6 +158,26 @@ class TodoListViewController: UITableViewController {
         //reload to show the new item
         tableView.reloadData()
     }
+    
+    //Delete data which overwrites method in swipe super class
+    override func updateModel(at indexPath: IndexPath) {
+        //if the method in the super class would have some code and
+        //we want to use it plus add this func here we could added by
+        //calling super.updateModel(at: indexPath) but if not call
+        //we are overwriting everything and replace it with the code here
+        
+        
+        //handle action by updating model with deletion
+        if let item = self.todoItems?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(item)
+                }
+            } catch {
+                print("Error while deleting \(error)")
+            }
+        }
+    }
 }
 
 
@@ -188,3 +212,4 @@ extension TodoListViewController: UISearchBarDelegate {
         }
     }
 }
+
