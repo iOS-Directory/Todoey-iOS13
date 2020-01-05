@@ -8,6 +8,7 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
 class TodoListViewController: SwipeTableViewController {
     
@@ -17,6 +18,10 @@ class TodoListViewController: SwipeTableViewController {
     
     //create a new instance of Realm
     let realm = try! Realm()
+    
+    
+    @IBOutlet weak var searchBar: UISearchBar!
+    
     
     //Creating selectedCategory to get the selected row from category VC
     //here as soon as the selectedCategory gets set with a value then
@@ -28,12 +33,49 @@ class TodoListViewController: SwipeTableViewController {
         }
     }
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         //change the high of the cells for the icon to show correctly
         tableView.rowHeight = 70.0
+        
+        //remove separators
+        tableView.separatorStyle = .none
     }
+    
+    //Use viewWillAppear to set the navigationController color because viewDidLoad cannot be use since
+    // the navigationController does not exist during the lifecycle till viewWillAppear
+    override func viewWillAppear(_ animated: Bool) {
+        
+        //Changing the navbar color to match the category color
+        if let hexColour = selectedCategory?.color {
+            
+            //set the title to match the selected category
+            title = selectedCategory!.name
+            
+            //to be safe will throw error if navigationController not yet exist
+            guard let navBar  =  navigationController?.navigationBar else {fatalError("Navigation controller does not exist")}
+            
+            
+            if let navBarColour = UIColor(hexString: hexColour){
+
+                //set the Navigation letters ( + AND BACK)
+                navBar.tintColor = ContrastColorOf(navBarColour, returnFlat: true)
+                
+                //Set background color of the navbar
+                navBar.backgroundColor = navBarColour
+                
+                //changing title color * NOT WORKING *
+                navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : ContrastColorOf(navBarColour, returnFlat: true)]
+                
+                //set the seachBar color to match the theme
+                searchBar.barTintColor =  navBarColour
+            }
+        }
+    }
+    
+    
     
     //MARK: - TableView Building tables
     
@@ -54,6 +96,17 @@ class TodoListViewController: SwipeTableViewController {
             //set the cell label to the array
             //set the array and the index is the ammount of rows
             cell.textLabel?.text =  item.title
+            
+            
+            
+            //Creating color for the cell and making it darker base on the index of the item
+            if let colour = UIColor(hexString: selectedCategory!.color)?.darken(byPercentage: CGFloat(indexPath.row) / CGFloat(todoItems!.count)){
+                cell.backgroundColor = colour
+                
+                //automatically make text white or black base on on the background color to make it readable
+                cell.textLabel?.textColor = ContrastColorOf(colour, returnFlat: true)
+            }
+            
             
             //CHECKMARK
             //Use tenary operator to add or remove checkmark

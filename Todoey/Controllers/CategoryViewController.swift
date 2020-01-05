@@ -8,8 +8,9 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
-class CategoryViewController: UITableViewController {
+class CategoryViewController: SwipeTableViewController {
     
     //Initialize Realm
     let realm = try! Realm()
@@ -20,9 +21,32 @@ class CategoryViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        
+        //change the high of the cells for the icon to show correctly
+        tableView.rowHeight = 70.0
+        
         //Load current items in DB
         loadCat()
+        
+        //Remove the separator lines between cells
+        tableView.separatorStyle = .none
     }
+    
+    
+    //SET INITIAL NAV BACKGROUND COLOR TO BLUE
+    override func viewWillAppear(_ animated: Bool) {
+        guard let navBar = navigationController?.navigationBar else {
+            fatalError("Navigation Controller does not exist")
+        }
+        
+         //Set the background to blue
+        navBar.backgroundColor = UIColor(hexString: "1D9BF6")
+        
+        //Set title letters to white
+        navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.white]
+        
+    }
+    
     
     //MARK: - TableView Data source Methods
     
@@ -39,33 +63,26 @@ class CategoryViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         //Creating Reusable cell
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
+        //let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
         
-        //iterate through array to Provide text for the cells
-        // since categoryArray is optional we will provide a default string if categoryArray is nil
-        cell.textLabel?.text = categoryArray?[indexPath.row].name ?? "No Categories added yet."
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
-        
-        return cell
-    }
-    
-    //DELETE on swipe
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        
-        //Check the type of editStyle
-        if editingStyle == .delete {
-            do {
-                try realm.write {
-                    realm.delete(categoryArray[indexPath.row])
-                }
-            }catch {
-                print("Error deleting \(error)")
-            }
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
+        if let category = categoryArray?[indexPath.row] {
+            //iterate through array to Provide text for the cells
+            // since categoryArray is optional we will provide a default string if categoryArray is nil
+            cell.textLabel?.text = category.name
+            
+            guard let categoryColor = UIColor(hexString: category.color) else {fatalError("Invalid cat color!")}
+            
+            //cell background
+            cell.backgroundColor = categoryColor
+            
+            //contras text color in each string cell
+            cell.textLabel?.textColor = ContrastColorOf(categoryColor, returnFlat: true)
+            
         }
         
-        tableView.reloadData()
+        return cell
     }
     
     //MARK: - Add New Category
@@ -87,6 +104,10 @@ class CategoryViewController: UITableViewController {
             
             //get the input text to equal the new cat
             newCat.name = textField.text!
+            
+            //Creating a random color
+            //  newCat.color = UIColor.randomFlat().hexValue()
+            newCat.color = UIColor(randomFlatColorOf:.light).hexValue()
             
             //call saveCat to save current context to DB
             self.save(category: newCat)
@@ -133,6 +154,21 @@ class CategoryViewController: UITableViewController {
         tableView.reloadData()
     }
     
+    //DELETE
+    override func updateModel(at indexPath: IndexPath) {
+        
+        if let item = self.categoryArray?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(item)
+                }
+            }catch {
+                print("Error deleting \(error)")
+            }
+        }
+        
+    }
+    
     //MARK: - TableView Delegate Methods
     
     //When user click on a cell this will be trigger
@@ -154,10 +190,8 @@ class CategoryViewController: UITableViewController {
             //set a property inside the destinationVC to the selected row
             //the selectedCategory must be created in the corresponding view to get the value
             destinationVC.selectedCategory = categoryArray?[indexPath.row]
+           
         }
         
     }
-    
-    
-    
 }

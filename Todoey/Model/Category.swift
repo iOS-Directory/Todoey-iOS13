@@ -16,7 +16,8 @@ class Category: Object {
     //include the keywords @objc dynamic to allow Realm to watch for changes
     //@objc = objective C modifyer
     //dynamic = dynamically monitor for changes while app is running 
-   @objc dynamic var name: String = ""
+    @objc dynamic var name: String = ""
+    @objc dynamic var color: String = ""
     
     //For the relationship between the two table we will initialized an array
     //this array is of type "List" Which comes from Realm and will contain Item
