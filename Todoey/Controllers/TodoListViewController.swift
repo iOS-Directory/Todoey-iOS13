@@ -59,6 +59,11 @@ class TodoListViewController: SwipeTableViewController {
             
             
             if let navBarColour = UIColor(hexString: hexColour){
+                
+                //Extend the color to the safe area
+                let navBarAppearance = UINavigationBarAppearance()
+                       navBarAppearance.backgroundColor = navBarColour
+                       navBar.scrollEdgeAppearance = navBarAppearance
 
                 //set the Navigation letters ( + AND BACK)
                 navBar.tintColor = ContrastColorOf(navBarColour, returnFlat: true)
@@ -71,6 +76,9 @@ class TodoListViewController: SwipeTableViewController {
                 
                 //set the seachBar color to match the theme
                 searchBar.barTintColor =  navBarColour
+                
+                
+                
             }
         }
     }
@@ -191,6 +199,9 @@ class TodoListViewController: SwipeTableViewController {
             alertTextField.placeholder = "Create new item"
             //All this block is triggered when we start typing
             textField = alertTextField
+            
+            //Capitalized first letter
+            textField.autocapitalizationType = .words
         }
         //Add the action/content to our alert pop up
         alert.addAction(action)

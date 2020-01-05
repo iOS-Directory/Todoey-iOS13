@@ -39,11 +39,17 @@ class CategoryViewController: SwipeTableViewController {
             fatalError("Navigation Controller does not exist")
         }
         
+        //Extend the color to the safe area
+        let navBarAppearance = UINavigationBarAppearance()
+        navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+        navBarAppearance.backgroundColor = UIColor(hexString: "1D9BF6")
+        navBar.scrollEdgeAppearance = navBarAppearance
+        
          //Set the background to blue
-        navBar.backgroundColor = UIColor(hexString: "1D9BF6")
+//        navBar.backgroundColor = UIColor(hexString: "1D9BF6")
         
         //Set title letters to white
-        navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.white]
+//        navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.white]
         
     }
     
@@ -106,8 +112,8 @@ class CategoryViewController: SwipeTableViewController {
             newCat.name = textField.text!
             
             //Creating a random color
-            //  newCat.color = UIColor.randomFlat().hexValue()
-            newCat.color = UIColor(randomFlatColorOf:.light).hexValue()
+              newCat.color = UIColor.randomFlat().hexValue()
+//            newCat.color = UIColor(randomFlatColorOf:.light).hexValue()
             
             //call saveCat to save current context to DB
             self.save(category: newCat)
@@ -119,6 +125,9 @@ class CategoryViewController: SwipeTableViewController {
             alertTextField.placeholder = "Create new Category"
             
             textField = alertTextField
+            
+            //Capitalized first letter
+            textField.autocapitalizationType = .words
         }
         
         //add the action to the alert
